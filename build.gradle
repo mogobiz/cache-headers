@@ -55,6 +55,7 @@ grailsPublish {
     portalUser = System.getenv('GRAILS_PORTAL_USER') ?: project.grailsPortalUser
     portalPassword = System.getenv('GRAILS_PORTAL_PASSWORD') ?: project.grailsPortalPassword
     repo = 'plugins'
+    userOrg = "grails"
     githubSlug = 'grails-plugins/cache-headers'
     license {
         name = 'Apache-2.0'
@@ -80,6 +81,9 @@ artifactory {
     }
 }
 
+task docs {
+    dependsOn 'asciidoctor'
+}
 
 jar {
     exclude "*TestController**"
