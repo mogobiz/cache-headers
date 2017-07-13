@@ -88,3 +88,7 @@ task docs {
 jar {
     exclude "*TestController**"
 }
+
+
+apply from: "${rootProject.projectDir}/gradle/integrationTestVerbose.gradle"
+apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
