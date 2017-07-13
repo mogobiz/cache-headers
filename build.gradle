@@ -10,8 +10,8 @@ buildscript {
 
     }
 }
-
-version "2.0.1"
+def versionTxt = file('version.txt')
+version versionTxt.exists() ? versionTxt.text.trim() : '0.1'
 group "org.grails.plugins"
 
 apply plugin:"eclipse"
