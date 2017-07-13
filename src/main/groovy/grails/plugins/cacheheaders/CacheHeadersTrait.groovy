@@ -4,15 +4,12 @@ import grails.artefact.Enhances
 import grails.web.api.ServletAttributes
 import groovy.transform.CompileStatic
 import org.grails.core.artefact.ControllerArtefactHandler
-import org.springframework.beans.factory.annotation.Autowired
 
 @Enhances(ControllerArtefactHandler.TYPE)
 @CompileStatic
 trait CacheHeadersTrait extends ServletAttributes {
 
-    @Autowired
     CacheHeadersService cacheHeadersService
-
 
     void cache( boolean allow ) {
         cacheHeadersService.cache(response, allow)
@@ -25,8 +22,8 @@ trait CacheHeadersTrait extends ServletAttributes {
     void cache( Map args ) {
         cacheHeadersService.cache(response, args)
     }
-    void withCacheHeaders( Closure c) {
-        cacheHeadersService.withCacheHeaders(response, c)
+    void withCacheHeaders(Closure c) {
+        cacheHeadersService.withCacheHeaders([response: response, request: request, params: params, session: session], c)
     }
 
     void lastModified( dateOrLong ){

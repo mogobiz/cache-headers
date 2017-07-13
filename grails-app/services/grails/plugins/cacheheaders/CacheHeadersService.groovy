@@ -117,23 +117,13 @@ class CacheHeadersService {
     boolean withCacheHeaders(context, Closure dsl) {
         assert dsl != null
 
-        // The lightest DSL impl in the world..?
-        def etagDSL
-        def lastModDSL
-        def generateDSL
-        dsl.delegate = new Expando(
-                etag: { c -> etagDSL = c },
-                lastModified: { c ->
-                    lastModDSL = c
-                },
-                generate: { c -> generateDSL = c }
-        )
+        WithCacheHeadersDelegate dslDelegate = new WithCacheHeadersDelegate()
+        dsl.delegate = dslDelegate
         dsl.resolveStrategy = Closure.DELEGATE_FIRST
         dsl.call()
 
         if (!enabled) {
-            callClosure(generateDSL, context)
-
+            callClosure(dslDelegate.generateDSL, context)
             return true
         }
 
@@ -159,9 +149,9 @@ class CacheHeadersService {
         if (possibleTags || (modifiedDate != -1)) {
 
             // First let's check for ETags, they are 1st class
-            if (possibleTags && etagDSL) {
+            if (possibleTags && dslDelegate.etagDSL) {
                 def tagList = possibleTags.split(',')*.trim()
-                etag = callClosure(etagDSL, context)
+                etag = callClosure(dslDelegate.etagDSL, context)
                 if (log.debugEnabled) {
                     log.debug "There was a list of ETag candidates supplied [${tagList}], calculated new ETag... ${etag}"
                 }
@@ -170,10 +160,10 @@ class CacheHeadersService {
                 }
             }
 
-            if ((modifiedDate != -1) && lastModDSL) {
+            if ((modifiedDate != -1) && dslDelegate.lastModDSL) {
                 // Or... 2nd class... check lastmod
                 def compareDate = new Date(modifiedDate)
-                lastMod = callClosure(lastModDSL, context)
+                lastMod = callClosure(dslDelegate.lastModDSL, context)
 
                 if (compareDate != lastMod) {
                     lastModChanged = true
@@ -189,11 +179,11 @@ class CacheHeadersService {
 
         // If we get here, no headers or it has changed
 
-        if (!etag && etagDSL) {
-            etag = callClosure(etagDSL, context)
+        if (!etag && dslDelegate.etagDSL) {
+            etag = callClosure(dslDelegate.etagDSL, context)
         }
-        if (!lastMod && lastModDSL) {
-            lastMod = callClosure(lastModDSL, context)
+        if (!lastMod && dslDelegate.lastModDSL) {
+            lastMod = callClosure(dslDelegate.lastModDSL, context)
         }
 
         if (etag) {
@@ -203,7 +193,7 @@ class CacheHeadersService {
             lastModified(response, lastMod)
         }
 
-        callClosure(generateDSL, context)
+        callClosure(dslDelegate.generateDSL, context)
 
         return true
     }

@@ -10,3 +10,5 @@ plugin.xml
 .idea
 /.settings
 .DS_Store
+build
+.gradle
